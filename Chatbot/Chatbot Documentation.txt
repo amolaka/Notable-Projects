@@ -1,0 +1,8 @@
+The chatbot is designed to be Harry Potter. Using OpenAI, it can answer any questions you ask as if it is Harry Potter himself. There are four unique functions: hi, spell, friend,
+and potion. 'Hi' is designed to recognize when a user inputs a greeting of some sort (example: !hi), and will respond in a welcoming way. 'Spell' is designed to return a random 
+spell, pulling the information from OpenAI. You can use the command !spell to do so. 'Friend' is designed to return a greeting from a random Harry Potter character, once again
+pulling the information from OpenAI. You can use the command !friend to do this. 'Potion' is desinged to return information about a random potion, almost like a fun fact.
+The information is pulled from a csv file containing various potions and what they do. You can use the command !potion to do this. Finally, 'Harry_Help' is designed to send a 
+message with information about all of these functions and the necessary commands to invoke them.
+
+Happy chatting!
