@@ -1,0 +1,611 @@
+---
+title: "Final Dashboard: Bike Rental Trends in Washington D.C."
+author: "Anwita Molaka, Shreya Darbha, Tiara Allard"
+date: "2023-04-17"
+output:
+  html_document:
+    number_sections: false
+    toc: true
+    toc_float: true
+    theme: lumen
+    toc_collapsed: true
+    code_folding: "hide"
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+
+This dashboard focuses on the trends associated with bike rental systems in Washington DC, with the key stakeholder being a company that would potentially invest in implementing a wide scale system. With public transportation becoming more unreliable and the cost of driving–both time and money wise–increasing, looking into implementing this system may be beneficial. Looking at other major cities around the world with lower traffic congestion due to widespread usage of bikes, investing in this type of mass system may reap considerable benefits in the future. Before doing this, however, it is important to look at general bike renting trends found in smaller systems. Factors such as time of day/week/year, holidays, climates, and weather conditions all play roles in whether an individual is more inclined to rent out a bike for their commuting needs. After analyzing these trends, it was found that the best time to rent out bikes were in the early morning hours and evenings, as it is assumed that individuals commute to and from their place of work. Additionally, bike rentals peaked in warmer months because of better weather conditions. In terms of weather, clear to partly cloudy conditions boasted the best results–with more precipitation causing fewer bikes rented by users. When the weather entailed more precipitation, however, bike rentals were most common during mid-hours of the day, where temperature tends to be warmer.
+
+
+## Import Libraries
+
+```{r, include=TRUE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(shiny)
+library(reshape2)
+library(knitr)
+library(plotly)
+library(foreign)
+library(plyr)
+library(skimr)
+library(shinythemes)
+```
+
+## Import Dataset
+Data is from [Washington DC bike sharing dataset](https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset) on Kaggle.
+```{r}
+time_data <- read.csv('hour.csv')
+head(time_data)
+
+bike_df <- read.csv('bike_rentals.csv')
+head(bike_df)
+```
+
+## Background and Questions
+Traffic congestion is one of the most prevalent issues that every major city faces–especially in the United States, where vehicle usage is much higher compared to the rest of the world. The nation’s capital experiences major traffic, causing drivers to waste a significant amount of time. In 2022, the average American driver lost approximately 51 hours stuck in traffic, while DC drivers lost a whopping 83 hours according to a study conducted by [Inrix](https://inrix.com/scorecard/), an US-based company that analyzes mass transit data. The company also calculated the cost of this time lost–which turned out to be $1414 for drivers in Washington DC. This value does not account for the costs associated with the drastic fluctuations in gasoline prices last year–another factor that causes stress for drivers. While public transportation is a great alternative to driving, there are many downsides associated with the current systems in place. An article by [Governing](https://www.governing.com/now/washington-metro-is-a-transit-system-in-deep-trouble) outlines issues such as poor reliability, regulation scrutiny, and budget deficits that cause the overall system to not be on par with other transportation systems around the world. With this and other outside factors such as crime and surges in COVID-19 cases, many individuals desire an alternative method of transportation that reduces overhead costs yet can still be dependable: that’s where bike sharing comes into play.
+
+If a major bike rental company were to implement a mass bike sharing system in Washington DC, they would have to inspect several variables in order to gauge general interest. Looking at factors such as weather, time, season, and holidays would help determine if carrying out this system would be worth it. It would also aid in the company deciding to move around a certain quantity of bikes from one location to another; for instance, there may be less individuals willing to rent out bikes during a rainier season–so the company could shift a certain proportion of bikes to another city where the weather may be better at that time of year. 
+
+Therefore, this dashboard will zero in on two key components: 
+* When do people usually ride bikes in Washington DC? What type of people (registered vs non-registered) usually ride bikes in Washington DC?
+* What types of weather conditions are best to implement a bike sharing system?
+
+### Data Cleaning
+
+```{r}
+# Function to get time as axis labels 
+timeHM_formatter <- function(x) {
+  h <- x
+  lab <- sprintf("%d:00", h)
+  return(lab)
+}
+```
+
+```{r}
+# Convert dates to datetime
+bike_df <- bike_df %>%
+  mutate(datetime = gsub('/', '-', datetime))
+head(bike_df)
+```
+```{r}
+bike_df$datetime <- as.POSIXct(bike_df$datetime, format="%d-%m-%Y %H:%M")
+head(bike_df)
+```
+
+```{r}
+bike_df <- bike_df %>%
+  mutate(date_time = datetime) 
+
+head(bike_df)
+```
+
+```{r, warning=FALSE, message=FALSE}
+bike_df <- bike_df %>% 
+  separate(datetime, c('date', 'time'))
+
+head(bike_df)
+```
+
+```{r}
+time_data$dteday <- as.POSIXct(time_data$dteday, format="%Y-%m-%d")
+head(time_data)
+```
+
+```{r}
+month_data <- time_data %>%
+  group_by(mnth) %>%
+  summarize(month_count = sum(cnt))
+
+head(bike_df)
+head(month_data)
+head(time_data)
+```
+
+## EDA
+
+* hr - hour in a 24-hour period of time
+
+* weathersit - a number that represents the weather conditions: 
+    - 1 = clear, few clouds, partly cloudy, partly cloudy
+    - 2 = mist + cloudy, mist + broken clouds, mist + few clouds, mist
+    - 3 = light snow, light rain + thunderstorms + scattered clouds, light rain + scattered clouds
+    - 4 = heavy rain + ice pallets + thunderstorm + mist, snow + fog
+
+* casual: count of casual users
+
+* registered: count of registered users
+
+* cnt - total number of bike rentals
+
+* dteday - calendar date with year, month, and day
+
+* season - a number that represents one of the four seasons: 
+    - 1 = spring
+    - 2 = summer
+    - 3 = fall
+    - 4 = winter
+
+* temp - temperature in degrees Celsius
+
+```{r}
+time_data %>% 
+  select(dteday, yr, mnth, hr, weathersit, weekday, workingday) %>% 
+  skim
+
+bike_df %>% 
+  select(date, time, weather, temp, registered) %>% 
+  skim
+```
+
+## Question 1
+**When do people usually ride bikes in Washington DC? What type of people (registered vs non-registered) usually ride bikes in Washington DC?**
+
+```{r}
+time_data$weather <- as.factor(time_data$weathersit)
+
+wgroup <- ddply(time_data, c("weather", "dteday"), summarise, count = mean(cnt))
+  
+my_colors <- c('#4EA2DF', '#1A679E', '#003459', '#00171F')
+
+w1 <- wgroup %>% filter(weather == 1)
+w2 <- wgroup %>% filter(weather == 2)
+w3 <- wgroup %>% filter(weather == 3)
+w4 <- wgroup %>% filter(weather == 4)
+
+wgroup$dteday <- as.Date(wgroup$dteday)
+
+head(wgroup)
+```
+
+```{r}
+fig1 <- plot_ly(wgroup, type = 'scatter', mode = 'lines') 
+
+fig1 <- fig1 %>%
+  add_trace(
+    x = w1$dteday,
+    y = w1$count,
+    name = 'Clear to partly cloudy',
+    line = list(
+        color = '#4EA2DF',
+        width = 1
+      ),
+    hovertemplate = 'Count: %{y} <br>Time: %{x}'
+  ) 
+fig1 <- fig1 %>%
+  add_trace(
+    x = w2$dteday,
+    y = w2$count,
+    name = 'Mist',
+    line = list(
+        color = '#1A679E',
+        width = 1
+      ),
+    hovertemplate = 'Count: %{y} <br>Time: %{x}'
+  )
+fig1 <- fig1 %>%
+  add_trace(
+    x = w3$dteday,
+    y = w3$count,
+    name = 'Light precipitation',
+    line = list(
+        color = '#003459',
+        width = 1
+      ),
+    hovertemplate = 'Count: %{y} <br>Time: %{x}'
+  ) 
+fig1 <- fig1 %>%
+  add_trace(
+    x = w4$dteday,
+    y = w4$count,
+    name = 'Heavy precipitation',
+    line = list(
+        color = '#00171F',
+        width = 1
+      ),
+    hovertemplate = 'Count: %{y} <br>Time: %{x}'
+  ) 
+fig1 <- fig1 %>% layout(title = 'Frequency Graph for Bike Rental Count Versus Time',
+         xaxis = list(title = 'Date'),
+         yaxis = list (title = 'Bike Rental Count'),
+         legend = list(title = list(text = "Weather")),
+         hovertemplate = 'Count: %{y} <br>Time: %{x}', margin = list(l = 80, r = 50,
+          b = 50, t = 80,
+          pad = 20))
+
+fig1 <- fig1 %>%
+  layout(xaxis = list(rangeslider = list(visible = T), rangeselector = list(buttons = list(
+    list(count = 1, label = "1 Day", step = "day", stepmode = "backward"),
+    list(count = 7, label = "1 Week", step = "day", stepmode = "backward"),
+    list(count = 1, label = "1 Month", step = "month", stepmode = "backward"),
+    list(count = 1, label = "1 Year", step = "year", stepmode = "backward"),
+    list(label = "All", step = "all")))))
+
+fig1
+```
+
+This first graph presents the frequency of bike rental based on time of day; each line represents a different type of weather condition in regards to precipitation–these lines transition from a lighter blue to a darker blue in order to signal a progression from ideal conditions to worse conditions. 
+
+This graph lets you look at bike rental trends from the most granular form–which is by day–to the broadest form–which is 2 years (the entirety of this dataset). The slider below the graph also allows you to look at any range of time in which bikes were rented.
+From this graph, we can see that clear to partly cloudy conditions had a significant bike rental frequency; the rainier it got, the frequency of rentals decreased to virtually zero. For the bike rental company in this case, a significant portion of bikes can be shifted to another geographic location during the rainier spring season in DC–around the March-May time frame–in order to maximize profits. 
+
+We can also see that bike rentals usually peak in the early morning hours and in the evening; these peaks can be attributed to the assumption that individuals are using these bikes to commute to and from work at these hours. During nicer weather conditions, bike rentals also peak in the mid-afternoon hours, but experience a downturn otherwise. On a day-to-day basis, it can be said that users will typically rent out bikes towards the beginning of the day when there is light due to warmer temperatures and for safety reasons as well. On a larger time-scale, bike rentals peaked in warmer months, from May to August, while there were drops during colder months. We assume that people are more likely to rent bikes when there is little to no precipitation that may inconvenience them, and that there is an increase in tourists who want to explore the city during these months. 
+
+While it is difficult to implement mass bike changes during these hours, it would be beneficial for the company to track the bike rental counts at these times in order to ensure that there are enough to meet the demand. All in all, it can be concluded that the bike rental company will make the most profits in the early morning and evening times when weather conditions are clear to partly cloudy, and warmer months like May to August when there are more tourists and weather conditions are nicer.
+
+```{r}
+bar_data <- melt(bike_df[,c('workingday','casual','registered')],id.vars = 1)
+bar_data$workingday[bar_data$workingday == 1] <- "Weekends"
+bar_data$workingday[bar_data$workingday == 0 ] <- "Weekdays"
+
+ ggplot(bar_data, aes(x = workingday, y = value, fill = variable)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      scale_fill_manual(values = c("#84D2F6", "#386FA4")) +
+      labs(title = paste("Bike Rental Count"), x = "Type of Day", y = "Count")
+
+```
+
+This second graph also shows the frequency of bike rentals, but this time divided by the type of bike user. There is either a registered bike user (who is assumed to be a more frequent or constant user as they have registered with the company) or a casual user (who is assumed to rent a bike more irregularly).
+
+This graph allows you to view the difference between registered and casual renter count on the weekdays, weekends, or both. Furthermore, to look more closely at the actual count as the graph view changes, a slider is available to change the maximum value of the y-axis. 
+
+This graph is also divided by the week or weekend–giving us insight on what types of users rent bikes. For example, registered users who rent bikes on weekdays would typically be ones who use them for commuting purposes; on the other hand, casual users who rent bikes on weekends would usually be ones who use them for leisure or recreational purposes. 
+
+We can tell that the number of registered users experience a significant increase during the weekends. From this, it can be said that outside of those who may be commuting to work, there is also a substantial customer base that regularly rents out bikes on the weekends.
+
+Conversely, the number of casual users drops a little bit when it comes to the weekends. Since these types of users may be very inconsistent or one-off bike renters, it does make sense that there is a lower count in the weekend. This can simply be because there are only 2 days in the weekend and 5 days in the work week–so there are more cumulative rentals in the later time period. This can also be explained by the fact that Washington DC is a city that experiences a significant tourist/visitor volume, so casual rentals vary more based on social circumstances like festivals or protests. 
+
+Overall, the company’s key takeaways are as follows:
+
+* **Precipitation decreases bike rentals**
+      - The bike rental company should look to transfer a proportion of their bikes to another, drier region during rainier times in Washington DC.
+* **Registered users rent bikes more often in the weekends**
+      - The company should look to implement fixes and/or maintenance during the weekdays (preferably during rainier weather periods), as bikes will be in most
+      demand during the weekends on a regular basis. 
+* **The time the company will experience the most profits will be during weekends with clear to partly cloudy weather conditions**
+    - If the company ever experiences a downturn of bike rentals during this specific period, it may be a sign to transfer bikes to another region where the rentals are in more demand. 
+
+## Question 2
+**What types of weather conditions are best to implement a bike sharing system?**
+
+```{r}
+my_colors <- c('#4EA2DF', '#1A679E', '#003459', '#00171F')
+
+fig2 <- plot_ly(time_data, x = ~dteday, y = ~cnt, z = ~weathersit, colorbar = list(title = "Weather", tickvals = c(1, 2, 3, 4), ticktext = c("Clear to partly cloudy", "Mist", "Light Precipitation", "Heavy Precipitation")), type = "heatmap", color = I(~weathersit), colors = my_colors, hovertemplate = 'Count: %{y} <br>Time: %{x}')
+
+fig2 <- fig2 %>% layout(title = 'Weather Map for Bike Rental Count Versus Time',
+         xaxis = list(title = 'Time'),
+         yaxis = list(title = 'Bike Rental Count'))
+
+fig2 <- fig2 %>%
+  layout(xaxis = list(rangeslider = list(visible = T), rangeselector = list(
+  )))
+
+fig2
+```
+
+The third graph also presents the frequency of bike rentals based on the time of day, but with a larger focus on the weather conditions. A heat map was used to convey this information to allow for an easy representation of the data through color. The graph was coded such that there was a transition from light blue to dark blue, with the former representing clear conditions and the latter representing heavy precipitation. The graph shows that overall, clear to partly conditions are by far the most optimal and preferred by those renting bikes, at all times of day. The heat map mainly displayed the light blue color associated with these weather conditions, leading to the conclusion. 
+
+Bikes were still rented during mist and light precipitation, though far less in frequency. This was more common during hours of the day that are typically warmer, such as from 9 am to 3 pm. Little to no bikes were rented during heavy precipitation, however. Thus, it is evident that individuals renting bikes in Washington D.C. prefer and are more likely to do so when weather conditions are clear.
+
+For this question, the company’s main takeaways should be:
+
+* **Providing protective gear against harsh weather conditions**
+      - Individuals are more likely to rely on methods of transportation involving closed spaces, such as cars and buses, during inclement weather. An example of
+      this includes adding an attachable umbrella, for when precipitation is more unpredictable.
+* **Offering more bikes to rent during spring/summer seasons in the early morning and evening hours** 
+      - Weather conditions are much more pleasant compared to fall and winter due to temperature. Furthermore, conditions are usually more clear at these times.
+* **Making bikes the most available in the middle of the day for all weather conditions**
+      - This is when bike rentals peak the most, so there is definitely a higher demand for them.
+
+## Summary
+There are many factors to consider when developing and managing a bike rental system, especially in a populated area like Washington D.C. Two of the most important factors are time of day and weather conditions, which we analyzed in this report. Overall, there are four key takeaways from the analysis of bike rental trends in Washington D.C. First, when strictly looking at time of day, bikes are rented more frequently during early morning and evening, as this is when people commute to work. Second, when strictly looking at weather, bikes are rented more frequently during clear to partly cloudy conditions, as people tend to be outside when the weather is nice and stay inside during heavy weather events that involve precipitation. Third, the biggest type of customer base is registered users who ride bikes specifically on the weekends. Lastly, when looking at time of day and weather together, bikes are rented frequently during the early morning and evening when weather conditions are clear, but when there is precipitation, bikes tend to be rented during warmer hours of the day (9 am to 3 pm). It is important to take these factors into consideration when managing and implementing a bike rental system, especially one that is widespread. Through analysis of these factors and many others, bike rental companies will profit from their business, as well as contribute to fixing traffic congestion issues in a variety of places.
+
+## Sources
+- [https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset](https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset)
+- [https://inrix.com/scorecard/](https://inrix.com/scorecard/)
+- [https://www.governing.com/now/washington-metro-is-a-transit-system-in-deep-trouble](https://www.governing.com/now/washington-metro-is-a-transit-system-in-deep-trouble)
+
+```{r}
+esum <- "This dashboard focuses on the trends associated with bike rental systems in Washington DC, with the key stakeholder being a company that would potentially invest in implementing a wide scale system. With public transportation becoming more unreliable and the cost of driving–both time and money wise–increasing, looking into implementing this system may be beneficial. Looking at other major cities around the world with lower traffic congestion due to widespread usage of bikes, investing in this type of mass system may reap considerable benefits in the future. Before doing this, however, it is important to look at general bike renting trends found in smaller systems. Factors such as time of day/week/year, holidays, climates, and weather conditions all play roles in whether an individual is more inclined to rent out a bike for their commuting needs. After analyzing these trends, it was found that the best time to rent out bikes were in the early morning hours and evenings, as it is assumed that individuals commute to and from their place of work. Additionally, bike rentals peaked in warmer months because of better weather conditions. In terms of weather, clear to partly cloudy conditions boasted the best results–with more precipitation causing fewer bikes rented by users. When the weather entailed more precipitation, however, bike rentals were most common during mid-hours of the day, where temperature tends to be warmer."
+
+back1 <- "Traffic congestion is one of the most prevalent issues that every major city faces–especially in the United States, where vehicle usage is much higher compared to the rest of the world. The nation’s capital experiences major traffic, causing drivers to waste a significant amount of time. In 2022, the average American driver lost approximately 51 hours stuck in traffic, while DC drivers lost a whopping 83 hours according to a study conducted by [Inrix](https://inrix.com/scorecard/), an US-based company that analyzes mass transit data. The company also calculated the cost of this time lost–which turned out to be $1414 for drivers in Washington DC. This value does not account for the costs associated with the drastic fluctuations in gasoline prices last year–another factor that causes stress for drivers. While public transportation is a great alternative to driving, there are many downsides associated with the current systems in place. An article by [Governing](https://www.governing.com/now/washington-metro-is-a-transit-system-in-deep-trouble) outlines issues such as poor reliability, regulation scrutiny, and budget deficits that cause the overall system to not be on par with other transportation systems around the world. With this and other outside factors such as crime and surges in COVID-19 cases, many individuals desire an alternative method of transportation that reduces overhead costs yet can still be dependable: that’s where bike sharing comes into play."
+
+back2 <- "If a major bike rental company were to implement a mass bike sharing system in Washington DC, they would have to inspect several variables in order to gauge general interest. Looking at factors such as weather, time, season, and holidays would help determine if carrying out this system would be worth it. It would also aid in the company deciding to move around a certain quantity of bikes from one location to another; for instance, there may be less individuals willing to rent out bikes during a rainier season–so the company could shift a certain proportion of bikes to another city where the weather may be better at that time of year."
+
+g1_1 <- "This first graph presents the frequency of bike rental based on time of day; each line represents a different type of weather condition in regards to precipitation–these lines transition from a lighter blue to a darker blue in order to signal a progression from ideal conditions to worse conditions."
+
+g1_2 <- "This graph lets you look at bike rental trends from the most granular form–which is by day–to the broadest form–which is 2 years (the entirety of this dataset). The slider below the graph also allows you to look at any range of time in which bikes were rented.
+From this graph, we can see that clear to partly cloudy conditions had a significant bike rental frequency; the rainier it got, the frequency of rentals decreased to virtually zero. For the bike rental company in this case, a significant portion of bikes can be shifted to another geographic location during the rainier spring season in DC–around the March-May time frame–in order to maximize profits." 
+
+g1_3 <- "We can also see that bike rentals usually peak in the early morning hours and in the evening; these peaks can be attributed to the assumption that individuals are using these bikes to commute to and from work at these hours. During nicer weather conditions, bike rentals also peak in the mid-afternoon hours, but experience a downturn otherwise. On a day-to-day basis, it can be said that users will typically rent out bikes towards the beginning of the day when there is light due to warmer temperatures and for safety reasons as well. On a larger time-scale, bike rentals peaked in warmer months, from May to August, while there were drops during colder months. We assume that people are more likely to rent bikes when there is little to no precipitation that may inconvenience them, and that there is an increase in tourists who want to explore the city during these months." 
+
+g1_4 <- "While it is difficult to implement mass bike changes during these hours, it would be beneficial for the company to track the bike rental counts at these times in order to ensure that there are enough to meet the demand. All in all, it can be concluded that the bike rental company will make the most profits in the early morning and evening times when weather conditions are clear to partly cloudy, and warmer months like May to August when there are more tourists and weather conditions are nicer."
+
+g2_1 <- "This second graph also shows the frequency of bike rentals, but this time divided by the type of bike user. There is either a registered bike user (who is assumed to be a more frequent or constant user as they have registered with the company) or a casual user (who is assumed to rent a bike more irregularly)."
+
+g2_2 <- "This graph allows you to view the difference between registered and casual renter count on the weekdays, weekends, or both. Furthermore, to look more closely at the actual count as the graph view changes, a slider is available to change the maximum value of the y-axis." 
+
+g2_3 <- "This graph is also divided by the week or weekend–giving us insight on what types of users rent bikes. For example, registered users who rent bikes on weekdays would typically be ones who use them for commuting purposes; on the other hand, casual users who rent bikes on weekends would usually be ones who use them for leisure or recreational purposes." 
+
+g2_4 <- "We can tell that the number of registered users experience a significant increase during the weekends. From this, it can be said that outside of those who may be commuting to work, there is also a substantial customer base that regularly rents out bikes on the weekends."
+
+g2_5 <- "Conversely, the number of casual users drops a little bit when it comes to the weekends. Since these types of users may be very inconsistent or one-off bike renters, it does make sense that there is a lower count in the weekend. This can simply be because there are only 2 days in the weekend and 5 days in the work week–so there are more cumulative rentals in the later time period. This can also be explained by the fact that Washington DC is a city that experiences a significant tourist/visitor volume, so casual rentals vary more based on social circumstances like festivals or protests." 
+
+g3_1 <- "The third graph also presents the frequency of bike rentals based on the time of day, but with a larger focus on the weather conditions. A heat map was used to convey this information to allow for an easy representation of the data through color. The graph was coded such that there was a transition from light blue to dark blue, with the former representing clear conditions and the latter representing heavy precipitation. The graph shows that overall, clear to partly conditions are by far the most optimal and preferred by those renting bikes, at all times of day. The heat map mainly displayed the light blue color associated with these weather conditions, leading to the conclusion." 
+
+g3_2 <- "Bikes were still rented during mist and light precipitation, though far less in frequency. This was more common during hours of the day that are typically warmer, such as from 9 am to 3 pm. Little to no bikes were rented during heavy precipitation, however. Thus, it is evident that individuals renting bikes in Washington D.C. prefer and are more likely to do so when weather conditions are clear."
+
+summ <- "There are many factors to consider when developing and managing a bike rental system, especially in a populated area like Washington D.C. Two of the most important factors are time of day and weather conditions, which we analyzed in this report. Overall, there are four key takeaways from the analysis of bike rental trends in Washington D.C. First, when strictly looking at time of day, bikes are rented more frequently during early morning and evening, as this is when people commute to work. Second, when strictly looking at weather, bikes are rented more frequently during clear to partly cloudy conditions, as people tend to be outside when the weather is nice and stay inside during heavy weather events that involve precipitation. Third, the biggest type of customer base is registered users who ride bikes specifically on the weekends. Lastly, when looking at time of day and weather together, bikes are rented frequently during the early morning and evening when weather conditions are clear, but when there is precipitation, bikes tend to be rented during warmer hours of the day (9 am to 3 pm). It is important to take these factors into consideration when managing and implementing a bike rental system, especially one that is widespread. Through analysis of these factors and many others, bike rental companies will profit from their business, as well as contribute to fixing traffic congestion issues in a variety of places."
+```
+
+
+```{r}
+ui <- navbarPage("Bike Rental Trends in Washington D.C.",
+                 theme = shinytheme("superhero"),
+                 tabPanel("Executive Summary",
+                          tags$h2("Analysis of Bike Rental Trends in Washington D.C. from 2011 to 2012"),
+                          tags$h4("Anwita Molaka, Shreya Darbha, Tiara Allard"),
+                          tags$p(esum),
+                          tags$hr()),
+                 tabPanel("Background and Questions",
+                          tags$h2("Background"),
+                          tags$p(back1),
+                          tags$p(back2),
+                          tags$hr(),
+                          tags$h3("Therefore, this dashboard will zero in on two key components: "),
+                          tags$ol(
+                            tags$li("When do people usually ride bikes in Washington DC?\nWhat type of people (registered vs non-registered) usually ride
+                                    bikes in Washington DC?"),
+                            tags$li("What types of weather conditions are best to implement a bike sharing system?")
+                            )),
+                 tabPanel("Question 1: Time and Registration", 
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput(inputId = "dayType",
+                                          label = "Select Type of Day",
+                                          choices = c("Both Types of Day", "Weekdays", "Weekends")),
+                              sliderInput(inputId = "maxY",
+                                          label = "Maximum User Count Value",
+                                          min = 0, max = 1000, value = 1000),
+                              actionButton(inputId = "reset", label = "Reset")
+                              ),
+                            mainPanel(
+                              tags$h4("When do people usually ride bikes in Washington DC? What type of people (registered vs non-registered) usually ride
+                                      bikes in Washington DC?"),
+                              tags$hr(),
+                              tags$div(
+                                style = "display: flex; flex-direction:column; flex-wrap: wrap; justify-content: center; align-items: center;",
+                                tags$div(class = "col-md-10", plotlyOutput("fig1")),
+                                tags$div(class = "col-md-10", plotOutput("plot"))
+                                ),
+                              tags$hr(),
+                              tags$p(g1_1),
+                              tags$p(g1_2),
+                              tags$p(g1_3),
+                              tags$p(g1_4),
+                              tags$p("Data source: Washington DC bike sharing dataset on Kaggle\nData collected from: 01/01/2011 to 12/31/2012"),
+                              tags$hr(),
+                              tags$p(g2_1),
+                              tags$p(g2_2),
+                              tags$p(g2_3),
+                              tags$p(g2_4),
+                              tags$p(g2_5),
+                              tags$h3("Overall, the company’s key takeaways are as follows:"),
+                              tags$ol(
+                                tags$li("Precipitation decreases bike rentals",
+                                        tags$ul(
+                                          tags$li("The bike rental company should look to transfer a proportion of their bikes to another, drier region
+                                          during rainier times in Washington DC.")
+                                          )
+                                        ),
+                                tags$li("Registered users rent bikes more often in the weekends",
+                                        tags$ul(
+                                          tags$li("The company should look to implement fixes and/or maintenance during the weekdays (preferably during
+                                          rainier weather periods), as bikes will be in most demand during the weekends on a regular basis."),
+                                          )
+                                        ),
+                                tags$li("The time the company will experience the most profits will be during weekends with clear to partly cloudy weather
+                                        conditions",
+                                        tags$ul(
+                                          tags$li("If the company ever experiences a downturn of bike rentals during this specific period, it may be a
+                                          sign to transfer bikes to another region where the rentals are in more demand.")
+                                          )
+                                        )
+                                )
+                              )
+                            )
+                          ),
+                 tabPanel("Question 2: Weather Conditions",
+                          sidebarLayout(
+                            dateRangeInput("daterange", "Select Date Range:", start = min(time_data$dteday), end = max(time_data$dteday)),
+                            mainPanel(
+                              tags$h4("What types of weather conditions are best to implement a bike sharing system?"),
+                              tags$hr(),
+                              plotlyOutput("fig2"),
+                              tags$p("Data source: Washington DC bike sharing dataset on Kaggle\nData collected from: 01/01/2011 to 12/31/2012"),
+                              tags$hr(),
+                              tags$p(g3_1),
+                              tags$p(g3_2),
+                              tags$h3("For this question, the company's main takeaways should be:"),
+                                tags$ol(
+                                tags$li("Providing protective gear against harsh weather conditions",
+                                        tags$ul(
+                                          tags$li("Individuals are more likely to rely on methods of transportation involving closed spaces, such as cars
+                                          and buses, during inclement weather. An example of this includes adding an attachable umbrella, for when
+                                          precipitation is more unpredictable.")
+                                          )
+                                        ),
+                                tags$li("Offering more bikes to rent during spring/summer seasons in the early morning and evening hours",
+                                        tags$ul(
+                                          tags$li("Weather conditions are much more pleasant compared to fall and winter due to temperature. Furthermore,
+                                          conditions are usually more clear at these times.")
+                                          )
+                                        ),
+                                tags$li("Making bikes the most available in the middle of the day for all weather conditions",
+                                        tags$ul(
+                                          tags$li("This is when bike rentals peak the most, so there is definitely a higher demand for them.")
+                                        )
+                                    )
+                                )
+                            )
+                          )
+                 ),
+                 tabPanel("Summary",
+                          tags$h2("Summary of Exploration"),
+                          tags$p(summ)
+                   
+                 ),
+                 tabPanel("Sources:",
+                          tags$h2("Sources"),
+                 tags$ol(
+                   tags$li(
+                     tags$a(href = "https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset", "Bike Sharing Dataset")
+                     ),
+                   tags$li(
+                     tags$a(href = "https://inrix.com/scorecard/", "INRIX Scorecard")
+                           ),
+                   tags$li(
+                   tags$a(href = "https://www.governing.com/now/washington-metro-is-a-transit-system-in-deep-trouble", "Washington Metro Transit System")
+                           )
+                 )
+                 ),
+                 tabPanel("Data and Code",
+                          tags$h2("Data"),
+                          tags$a(href = "https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset", "Washington D.C. Bike Sharing Dataset"),
+                          tags$p("The data set contains bike sharing data collected from a Washington D.C. bike rental system from 2011-2012, obtained from Kaggle."),
+                tags$hr(),
+                tags$h2("Code"),
+                includeMarkdown("Final Dashboard - DS 2003.Rmd")
+                 )
+)
+server <- function(input, output){
+  output$fig1 <- renderPlotly({
+    
+    fig1 <- plot_ly(type = 'scatter', mode = 'lines') 
+    
+    fig1 <- fig1 %>%
+      add_trace(
+        x = w1$dteday,
+        y = w1$count,
+        name = 'Clear to partly cloudy',
+        line = list(
+          color = '#4EA2DF',
+          width = 1
+        ),
+        hovertemplate = 'Count: %{y} <br>Time: %{x}'
+      ) 
+    fig1 <- fig1 %>%
+      add_trace(
+        x = w2$dteday,
+        y = w2$count,
+        name = 'Mist',
+        line = list(
+          color = '#1A679E',
+          width = 1
+        ),
+        hovertemplate = 'Count: %{y} <br>Time: %{x}'
+      )
+    fig1 <- fig1 %>%
+      add_trace(
+        x = w3$dteday,
+        y = w3$count,
+        name = 'Light precipitation',
+        line = list(
+          color = '#003459',
+          width = 1
+        ),
+        hovertemplate = 'Count: %{y} <br>Time: %{x}'
+      ) 
+    fig1 <- fig1 %>%
+      add_trace(
+        x = w4$dteday,
+        y = w4$count,
+        name = 'Heavy precipitation',
+        line = list(
+          color = '#00171F',
+          width = 1
+        ),
+        hovertemplate = 'Count: %{y} <br>Time: %{x}'
+      ) 
+    fig1 <- fig1 %>% layout(title = list(text = 'Frequency Graph for Bike Rental Count Versus Time',
+                                         x = 0.45),
+                            xaxis = list(title = 'Date'),
+                            yaxis = list(title = 'Bike Rental Count'),
+                            legend = list(title = list(text = "Weather")),
+                            hovertemplate = 'Count: %{y} <br>Time: %{x}', margin = list(l = 80, r = 50,
+                                                                                      b = 50, t = 80,
+                                                                                      pad = 20))
+    
+    fig1 <- fig1 %>%
+      layout(margin = list(l = 100, r = 100, b = 50, t = 50, pad = 4),
+             xaxis = list(rangeslider = list(visible = T), rangeselector = list(buttons = list(
+        list(count = 1, label = "1 Day", step = "day", stepmode = "backward"),
+        list(count = 7, label = "1 Week", step = "day", stepmode = "backward"),
+        list(count = 1, label = "1 Month", step = "month", stepmode = "backward"),
+        list(count = 1, label = "1 Year", step = "year", stepmode = "backward"),
+        list(label = "All", step = "all")))))
+    fig1
+})
+    
+     plot_data <- reactive({
+    if(input$dayType == "Both Types of Day") {
+      return(bar_data)
+    } else if (input$dayType == "Weekdays") {
+      return(filter(bar_data, workingday == "Weekdays"))
+    } else {
+      return(filter(bar_data, workingday == "Weekends"))
+    }
+  })
+  
+  observeEvent(input$reset, {
+    updateSelectInput(session, inputId = "dayType", selected = "Both")
+    updateSliderInput(session, inputId = "maxY", value = 1000)
+  })
+  
+  output$plot <- renderPlot({
+    ggplot(plot_data(), aes(x = workingday, y = value, fill = variable)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      scale_fill_manual(values = c("#84D2F6", "#386FA4")) +
+      ylim(0, input$maxY) +
+      theme(plot.title = element_text(hjust = 0.5, size = 15), plot.caption = element_text(hjust = 0.5, size = 12)) +
+      labs(title = paste("Bike Rental Count on", input$dayType), x = "Type of Day", y = "Count")
+  })
+    
+  output$fig2 <- renderPlotly({
+    filtered_data <- time_data[time_data$dteday >= input$daterange[1] & time_data$dteday <= input$daterange[2], ]
+    fig2 <- plot_ly(filtered_data, x = ~dteday, y = ~cnt, z = ~weathersit,
+                    colorbar = list(title = "Weather", tickvals = c(1, 2, 3, 4),
+                                    ticktext = c("Clear to partly cloudy", "Mist", "Light Precipitation", "Heavy Precipitation")),
+                    type = "heatmap", color = I(~weathersit), colors = my_colors,
+                    hovertemplate = 'Count: %{y} <br>Time: %{x}')
+
+    fig2 <- fig2 %>% layout(title = list(text = 'Weather Map for Bike Rental Count Versus Time',
+                                         x = 0.45),
+                            margin = list(l = 50, r = 50, b = 50, t = 50, pad = 4),
+                            xaxis = list(title = 'Time'),
+                            yaxis = list(title = 'Bike Rental Count'))
+
+    fig2 <- fig2 %>%
+      layout(xaxis = list(rangeslider = list(visible = T), rangeselector = list()))
+
+    fig2
+  })
+}
+shinyApp(ui = ui, server = server)
+        
+                 
+
+
+
+
+
+
+
+```
+
