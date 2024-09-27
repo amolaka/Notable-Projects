@@ -75,11 +75,8 @@ for (i in 1:num_pages) {
   }
 }
 
-# all_reviews <- all_reviews %>%
-#   mutate(Rating = ifelse(is.na(Rating), lead(Rating), Rating))
 
-
-
+# Get rid of na's
 all_reviews<-na.omit(all_reviews)
 
 
