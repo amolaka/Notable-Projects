@@ -1,6 +1,6 @@
 # DS4002_Project1
 ## Section 1: Software and platform section
-- Software used: R-Studio and Python (google collab)
+- Software used: R-Studio and Python (Google Colab)
 - Platform used: Mac
 - Add-on packages used: pandas, re, nltk, vaderSentiment, SentimentIntensity Analyzer, tidyverse, rvest, KMeans, matplotlib.pylot, seaborn, train_test_split, LogisticRegression, accuracy_score, kruskal
 
@@ -36,6 +36,11 @@
        * Compound vs Negative
        * Compound vs Neutral
        * Negative vs Positive
+     * Presentation Diagrams
+       * ...
+       * ...
+       * ...
+       * ...
      * Sentiment Analysis Diagrams
        * Shogun_Pie
        * 3Body_Pie
@@ -58,7 +63,7 @@
 
 1. Find nominated series on review on Rotten Tomatoes and IMDb
 2. Scrape text data from IMDB and Rotten Tomatoes for each nominateed series in R-Studio
-3. Clean data on R-Studio and create a data frame with four columns: Content (reviews), Platform (wether it is Rotten Tomatoes/IMDb), Title of review (only for IMDb), Rating (-/10 only for IMDB)
-4. Export the CSV created in R and upload them to Google Collab and import VADER sentiment analysis tool
-5. collect the positive, negative, neutral, and compound sentiment scores
-6. Conduct hypothesis testing through analysizing the sentiment scores from VADER, preforming t-test, get a p-value, and make a desision tree model
+3. Clean data in R-Studio and create a data frame with four columns: Content (reviews), Platform (whether it is Rotten Tomatoes/IMDb), Title of review (only for IMDb), Rating (-/10 only for IMDB)
+4. Export the CSV created in R and upload them to Google Colab and import VADER sentiment analysis tool
+5. Collect the positive, negative, neutral, and compound sentiment scores
+6. Conduct hypothesis testing through generating the sentiment scores from VADER, clustering the scores (K-Means Clustering) for visualization, conducting a logistical regression to get predicted probabilities, compare compound sore to prediction results, and finally perform a Kruskal-Wallis Test to see if there is any significant difference in compound scores among nominees.
