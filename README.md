@@ -66,4 +66,4 @@
 3. Clean data in R-Studio and create a data frame with four columns: Content (reviews), Platform (whether it is Rotten Tomatoes/IMDb), Title of review (only for IMDb), Rating (-/10 only for IMDB)
 4. Export the CSV created in R and upload them to Google Colab and import VADER sentiment analysis tool
 5. Collect the positive, negative, neutral, and compound sentiment scores
-6. Conduct hypothesis testing through generating the sentiment scores from VADER, clustering the scores (K-Means Clustering) for visualization, conducting a logistical regression to get predicted probabilities, compare compound sore to prediction results, and finally perform a Kruskal-Wallis Test to see if there is any significant difference in compound scores among nominees.
+6. Conduct hypothesis testing through generating the sentiment scores from VADER, clustering the scores (K-Means Clustering) for visualization, conducting a logistical regression to get predicted probabilities, compare compound score to prediction results, and finally perform a Kruskal-Wallis Test to see if there is any significant difference in compound scores among nominees.
