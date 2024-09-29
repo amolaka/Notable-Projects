@@ -7,13 +7,13 @@
 ## Section 2: Map of Documentation
 
 DS4002_Project1
-- DATA 
-  Initial Data
-  Final Data
+- DATA
+1. Initial Data
+2. Final Data
 - OUTPUT
-  EDA diagrams
-  K-Means Clusters Diagrams
-  Sentiment Analysis Diagrams
+1. EDA diagrams
+2. K-Means Clusters Diagrams
+3. Sentiment Analysis Diagrams
 - SCRIPTS
 
 ## Section 3: Instructions for reproducing results
