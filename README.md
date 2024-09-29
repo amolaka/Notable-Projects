@@ -7,11 +7,14 @@
 ## Section 2: Map of Documentation
 
 DS4002_Project1
-- README.md
-- DATA (All CSVs)
-- OUTPUT (graphs and diagrams)
-- SCRIPTS (source code)
-- LICENSE
+- DATA 
+  Initial Data
+  Final Data
+- OUTPUT
+  EDA diagrams
+  K-Means Clusters Diagrams
+  Sentiment Analysis Diagrams
+- SCRIPTS
 
 ## Section 3: Instructions for reproducing results
 
