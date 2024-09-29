@@ -2,7 +2,7 @@
 ## Section 1: Software and platform section
 - Software used: R-Studio and Python (google collab)
 - Platform used: Mac
-- Add-on packages used: pandas, re, nltk, vaderSentiment, SentimentIntensity Analyzer, tidyverse, rvest
+- Add-on packages used: pandas, re, nltk, vaderSentiment, SentimentIntensity Analyzer, tidyverse, rvest, KMeans, matplotlib.pylot, seaborn, train_test_split, LogisticRegression, accuracy_score, kruskal
 
 ## Section 2: Map of Documentation
 
