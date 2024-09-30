@@ -37,10 +37,14 @@
        * Compound vs Neutral
        * Negative vs Positive
      * Presentation Diagrams
-       * ...
-       * ...
-       * ...
-       * ...
+       * 3bodywordcloud.png
+       * Crownwordcloud.png
+       * Falloutwordcloud.png
+       * Morningshowwordcloud.png
+       * Mrmrswordcloud.png
+       * Shogun Word Cloud.png
+       * Slowhorsewordcloud.png
+       * gildedagewordsloud.png
      * Sentiment Analysis Diagrams
        * Shogun_Pie
        * 3Body_Pie
