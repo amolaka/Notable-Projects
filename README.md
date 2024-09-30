@@ -37,28 +37,36 @@
        * Compound vs Neutral
        * Negative vs Positive
      * Presentation Diagrams
-       * 3bodywordcloud.png
-       * Crownwordcloud.png
-       * Falloutwordcloud.png
-       * Morningshowwordcloud.png
-       * Mrmrswordcloud.png
-       * Shogun Word Cloud.png
-       * Slowhorsewordcloud.png
-       * gildedagewordsloud.png
+       * 3bodywordcloud1.png
+       * falloutwordcloud1.pgn
+       * moringshowcordcloud1.png
+       * mrmrssmithwordcloud.png
+       * overallcrownwordcloud.pgn
+       * gildedagewordcloud1.png
+       * crownwordcloud1.png
+       * overall3bodywordcloud.png
+       * overallfalloutwordcloud.png
+       * overallgildedwordcloud.png
+       * overallmorningwordcloud.png
+       * overallmrmrssmithworldcloud.png
+       * overallshogunwordcloud.png.
+       * overallslowhorsewordcloud.png
      * Sentiment Analysis Diagrams
        * Shogun_Pie
-       * 3Body_Pie
-       * Fallout_Pie
-       * Mr.Mrs_Pie
-       * SlowHorse_Pie
-       * Crown_Pie
-       * Gilded_Pie
-       * MorningShow_Pie
+       * 3bodypie.png
+       * CrownPie.png
+       * Falloutpie.png
+       * Morningshowpie.png
+       * Mrmrssmithpie.png
+       * PostSentimentAnalysis2.png
        * Sentiment Analysis of Nominee Shows
+       * SlowhorsePie.png
+       * gildedagepie.png
+       * shogunpie.png
  * SCRIPTS
-   * DSProject1.R
-   * Project_1_Data_Cleaning_and_EDA.ipynb
-   * Project_1_Predictive_Model_and_Statistical_Significance.ipynb
+   * Project 1 --Data Scraping
+   * Project 1 -- Data_Cleaning_and_EDA.ipynb
+   * Project 1 -- Predictive_Model_and_Statistical_Significance.ipynb
    * Project_1_Sentiment_Analysis.ipynb
  * LISENSE
  * README.md
