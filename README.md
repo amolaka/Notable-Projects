@@ -42,7 +42,7 @@
   * Project 2 -- Model Evaluation
 
 ## Section 3: Instructions for reproducing results
-1. ___
+1. Use the 'GHG_totals.csv' file to then filter each country ...
 2. ___
 3. ___
 
