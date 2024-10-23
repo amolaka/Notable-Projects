@@ -40,10 +40,11 @@
 * SCRIPTS
   * Project 2 -- ARIMA
   * Project 2 -- Model Evaluation
+  * Project 2 -- Data Cleaning
 
 ## Section 3: Instructions for reproducing results
-1. Use the 'GHG_totals.csv' file to then filter each country ...
-2. ___
+1. First download the CSV files in our Final Data folders (for example 'Zimbabwe.csv', 'Zambia.csv', 'Yemen.csv', etc.)
+2. Using these CSV files, import each file into Google Colab and then run the 
 3. ___
 
 
