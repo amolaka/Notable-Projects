@@ -41,11 +41,12 @@
   * Project 2 -- ARIMA
   * Project 2 -- Model Evaluation
   * Project 2 -- Data Cleaning
+  * Project 2 -- Exploratory Data Analysis
 
 ## Section 3: Instructions for reproducing results
-1. First download the CSV files in our Final Data folders (for example 'Zimbabwe.csv', 'Zambia.csv', 'Yemen.csv', etc.)
-2. Using these CSV files, import each file into Google Colab and then run the 
-3. ___
+1. First, download the country CSV files in our Final Data folders (for example 'Zimbabwe.csv', 'Zambia.csv', 'Yemen.csv', etc.)
+2. Next, run the 'Project 2 -- Exploratory Data Analysis'.ipynb file in our SCRIPTS folder. This will generate our EDA plots. **** Note, you will need to import the country csv files into Google Colab Files ****
+3. Next, run the '
 
 
 
