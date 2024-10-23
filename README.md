@@ -45,9 +45,15 @@
 
 ## Section 3: Instructions for reproducing results
 1. First, download the country CSV files in our Final Data folders (for example 'Zimbabwe.csv', 'Zambia.csv', 'Yemen.csv', etc.)
-2. Next, run the 'Project 2 -- Exploratory Data Analysis'.ipynb file in our SCRIPTS folder. This will generate our EDA plots. **** Note, you will need to import the country csv files into Google Colab Files ****
-3. Next, run the 'Project 2 -- Model Evaluation'.ipynb file in our SCRIPTS folder. This has the code for testing which model (ARIMA, ETS, Prophet, Polynomial Regression) works best. You will notice that ARIMA ends up having the lowest RMSE value, leading us to use ARIMA as our predictive model of choice. **** Note, you will need to import the country csv files for this ipynb file to work! ****
+
+2. Next, run the 'Project 2 -- Exploratory Data Analysis'.ipynb file in our SCRIPTS folder. This will generate our EDA plots.
+**** NOTE, you will need to import the country csv files for this ipynb file to work! 
+
+3. Next, run the 'Project 2 -- Model Evaluation'.ipynb file in our SCRIPTS folder. This has the code for testing which model (ARIMA, ETS, Prophet, Polynomial Regression) works best. You will notice that ARIMA ends up having the lowest RMSE value, leading us to use ARIMA as our predictive model of choice.
+**** NOTE, you will need to import the country csv files for this ipynb file to work!
+
 4. Next, run the 'Project 2 -- ARIMA'.ipynb file in our SCRIPTS folder. This describes each country's predicted emissions for the target year 2050. For reference, our research question is: "Will a country's commitment to being carbon neutral by 2050 be reflected in the trends of their country's carbon emissions?" So any ARIMA results that depicts the Project 2050 Emissions being a value higher than zero is predicted by this model to not hold on to their commitment.
+**** NOTE, you will need to import the country csv files for this ipynb file to work!
 
 
 
