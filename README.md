@@ -35,7 +35,9 @@
      * Top 20 Countries by Average Annual GHG Emissions.png
      * Total GHG Emissions Across All Countries.png
    * Presentation Diagrams
-     * ______
+     * Top 10 Countries by GHG Emissions in 2022
+     * Top 10 Countries by Projected GHG Emissions in 2050
+     * Project Steps Outline Diagram
 
 * SCRIPTS
   * Project 2 -- ARIMA
