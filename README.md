@@ -57,5 +57,9 @@
 4. Next, run the 'Project 2 -- ARIMA'.ipynb file in our SCRIPTS folder. This describes each country's predicted emissions for the target year 2050. For reference, our research question is: "Will a country's commitment to being carbon neutral by 2050 be reflected in the trends of their country's carbon emissions?" So any ARIMA results that depicts the Project 2050 Emissions being a value higher than zero is predicted by this model to not hold on to their commitment.
 **** NOTE, you will need to import the country csv files for this ipynb file to work!
 
+## References
+[1] A. Hayes, “Autoregressive integrated moving average (ARIMA) prediction model,” Investopedia, https://www.investopedia.com/terms/a/autoregressive-integrated-moving-average-arima.asp (accessed Oct. 27, 2024). 
 
+[2] “CO2 emissions of All World Countries,” EDGAR, https://edgar.jrc.ec.europa.eu/report_2022 (accessed Oct. 27, 2024).
 
+[3] “The Complete Guide to Time Series models,” Built In, https://builtin.com/data-science/time-series-model (accessed Oct. 27, 2024).
