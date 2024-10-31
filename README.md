@@ -1,5 +1,6 @@
 # Carbon Neutral Prediction Analysis
 - By Corinna Keum, Anwita Molaka, and Joshua Mazher
+- Our goal is to develop a model to predict a country’s emissions by 2050 based on historical Greenhouse Gas emissions to see the likelihood of the country being carbon neutral
 
 ## Section 1: Software and platform section
 - Software used: Python (Google Colab)
