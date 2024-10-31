@@ -1,4 +1,6 @@
-# DS4002_Project2
+# Carbon Neutral Prediction Analysis
+- By Corinna Keum, Anwita Molaka, and Joshua Mazher
+
 ## Section 1: Software and platform section
 - Software used: Python (Google Colab)
 - Platform used: Mac
