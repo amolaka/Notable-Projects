@@ -5,7 +5,7 @@
 ## Section 1: Software and platform section
 - Software used: Python (Jupyter Notebook)
 - Platform used: Mac
-- Packages used: ____
+- Packages used: pandas, os, numpy, matplotlib.pyplot, seaborn, PIL, tensorflow, sklearn
 
 ## Section 2: Map of Documentation
 
