@@ -14,6 +14,7 @@
    * Pre-Processed Data
      * normalized_merged_images (3).zip
    * Data Appendix -- Project 3.pdf
+   * PH2 Dataset Images -- Raw 
 
  * OUTPUT
    * EDA Diagrams
