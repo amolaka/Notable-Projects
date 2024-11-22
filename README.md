@@ -11,10 +11,8 @@
 
 * DS4002 Project 3
  * DATA
-   * Initial Data
-     * ___
-   * Final Data
-     * ___
+   * Pre-Processed Data
+     * normalized_merged_images (3).zip
    * Data Appendix.pdf
 
  * OUTPUT
