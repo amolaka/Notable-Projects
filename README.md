@@ -34,11 +34,11 @@
   * Preprocessingdata.ipynb
 
 ## Section 3: Instructions for reproducing results
-1. For reproducing the results of the project, first download the data in the data folder called PH2Dataset.rar. You will then need to run it through our script called EDA (1).ipynb. This script will open the .rar file, in order to analyize the images. This will allow you to conduct the EDA and better understand the data. 
+1. For reproducing the results of the project, first download the data in the data folder called PH2 Dataset Images -- Raw. In order to upload to Github, the original zip file had to be split, so you will need to recombine using a free online webste. You will then need to run the zip file through our script called EDA (1).ipynb. This script will open the zip file, in order to analyize the images. This will allow you to conduct the EDA and better understand the data. 
 
-2. Next you will need to process the data. For this step, put the opened PH2Dataset through the Image Preprocessing.ipynb, this step will produce the final dataset that we will be using, you can find the final data set in the data folder called: normalized_merged_images (3).zip. 
+2. Next you will need to preprocess the image data. For this step, put the opened PH2Dataset through the file titled Image Preprocessing.ipynb. This step will clean, normalize, and merge various images to produce the final dataset that we will be using. You can find the final data set in the data folder called: normalized_merged_images (3).zip. 
 
-3. Next we will be using the CNN model to conduct the classification step in our project. You will need to use script called CNN -- Trial_1.ipynb and CNN--Trial2(1).ipynb and run the code accordingly. This will produce the results of the classification and analyze the accuracy.  
+3. Next we will be using the CNN model to conduct the classification step in our project, in order to determine if the various lesions are benign or malignant. You will need to use the scripts called CNN -- Trial_1.ipynb and CNN--Trial2(1).ipynb and run the code accordingly. This will produce the results of the classification and analyze the accuracy of the model.  
 
 
 ## References
