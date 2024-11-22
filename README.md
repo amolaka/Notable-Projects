@@ -17,12 +17,18 @@
 
  * OUTPUT
    * EDA Diagrams
-     * ___
+     * brightness and contrast distribution.png
+     * color distribution across lesion classes.png
+     * distributionoflesions.png
+     * image height distribution.png
    * Presentation Diagrams
-     * ___
+     * model accuracy and loss.png
 
 * SCRIPTS
-  * ___
+  * CNN -- Trial_1.ipynb
+  * CNN--Trial2(1).ipynb
+  * EDA (1).ipynb
+  * Image Preprocessing.ipynb
   * Preprocessingdata.ipynb
 
 ## Section 3: Instructions for reproducing results
