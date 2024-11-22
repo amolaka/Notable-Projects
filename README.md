@@ -13,7 +13,7 @@
  * DATA
    * Pre-Processed Data
      * normalized_merged_images (3).zip
-   * Data Appendix.pdf
+   * Data Appendix -- Project 3.pdf
 
  * OUTPUT
    * EDA Diagrams
