@@ -24,6 +24,7 @@
      * image height distribution.png
    * Presentation Diagrams
      * model accuracy and loss.png
+     * confusion matrix.png
 
 * SCRIPTS
   * CNN -- Trial_1.ipynb
