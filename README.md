@@ -1,4 +1,4 @@
-# DS4002_Project1
+# Emmy Winners Prediction Model Using Sentiment Analysis
 ## Section 1: Software and platform section
 - Software used: R-Studio and Python (Google Colab)
 - Platform used: Mac
