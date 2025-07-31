@@ -1,0 +1,2 @@
+The Initial Data Folder contains the CSV files of our original dataset, which includes all countries, years, and emissions.
+The Final Data Folders contain unique CSV files for each country, containing years and emissions
